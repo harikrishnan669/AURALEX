@@ -211,7 +211,6 @@ export default function LoginPage() {
     "
                 />
             </div>
-            {/*Mobile layout heading*/}
             <div className="w-full max-w-3xl z-20 lg:hidden flex items-center justify-center py-6 pt-10">
                 <div className="flex items-center space-x-3">
                     <div className="bg-white p-2 rounded-lg shadow">

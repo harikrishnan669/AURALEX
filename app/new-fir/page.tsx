@@ -10,9 +10,9 @@ import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import {Mic, Square, FileText, User, AlertCircle, CheckCircle, ArrowLeft, Send, Scale} from "lucide-react"
 import Link from "next/link"
-import { useChat } from "@ai-sdk/react"
 import jsPDF from "jspdf"
 import { PDFPreviewModal } from "@/components/pdf-preview-modal"
+import { SkipForward } from "lucide-react"
 
 interface ExtractedInfo {
   complainant: string
@@ -33,8 +33,22 @@ export default function NewFIR() {
   const [currentStep, setCurrentStep] = useState(1)
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
   const audioChunksRef = useRef<Blob[]>([])
+  const [firNumber] = useState(() => {
+    const year = new Date().getFullYear()
+    const random = Math.floor(100000 + Math.random() * 900000)
+    return `FIR/${year}/${random}`
+  })
+  const handleSkip = () => {
+    if (isRecording) {
+      stopRecording()
+    }
+    // Skip voice recording go to Transcription step
+    setTranscription("")
+    setCurrentStep(2)
+  }
 
-// The voice will start recording...
+
+// The voice will start recording
   const startRecording = async () => {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
 
@@ -91,27 +105,50 @@ export default function NewFIR() {
     mediaRecorderRef.current.stop()
     setIsRecording(false)
   }
-
   const processTranscription = async () => {
     if (!transcription.trim()) return
 
     setIsProcessing(true)
 
-    // Simulate AI processing for demo
-    setTimeout(() => {
-      const mockExtraction: ExtractedInfo = {
-        complainant: "Rajesh Kumar",
-        accused: "Unknown person",
-        incidentType: "Theft",
-        location: "MG Road, Sector 14, Gurgaon",
-        dateTime: "2024-01-15 14:30",
-        description: transcription,
-        sections: ["IPC Section 378 - Theft", "IPC Section 379 - Punishment for theft"],
+    const payload = {
+      text: transcription,
+    }
+
+    try {
+      const res = await fetch(
+          `${process.env.PORT_FORWARD_URL}/predict`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          }
+      )
+
+      if (!res.ok) {
+        throw new Error("Backend error")
       }
-      setExtractedInfo(mockExtraction)
-      setIsProcessing(false)
+
+      const data = await res.json()
+      console.log("BACKEND DATA:", data)
+
+      setExtractedInfo({
+        complainant: data.complainant || "",
+        accused: data.accused || "Unknown",
+        incidentType: data.incident_type || "",
+        dateTime: data.date_time || "",
+        location: data.location || "",
+        description: data.description || transcription,
+        sections: Array.isArray(data.ipc_sections)
+            ? data.ipc_sections
+            : [],
+      })
+
       setCurrentStep(3)
-    }, 2000)
+    } catch (e) {
+      console.error("Information extraction error:", e)
+    } finally {
+      setIsProcessing(false)
+    }
   }
 
   const generateFIR = () => {
@@ -140,16 +177,24 @@ export default function NewFIR() {
     yPosition += 10
     doc.setFontSize(12)
     doc.setFont("helvetica", "normal")
-    doc.text("Under Section 154 Cr.P.C.", pageWidth / 2, yPosition, { align: "center" })
+    doc.text("Under IPC/CrPC Sections", pageWidth / 2, yPosition, { align: "center" })
 
     yPosition += 20
 
     doc.setFontSize(10)
     doc.setFont("helvetica", "bold")
 
+    // Generating the FIR Number
+    function generateFIRNumber() {
+      const year = new Date().getFullYear()
+      const randomNumber = Math.floor(100000 + Math.random() * 900000) // 6-digit
+      return `FIR/${year}/${randomNumber}`
+    }
+    const firNumber = generateFIRNumber()
     doc.text("FIR No:", margin, yPosition)
     doc.setFont("helvetica", "normal")
-    doc.text("FIR/2024/001238", margin + 30, yPosition)
+    doc.text(firNumber, margin + 30, yPosition)
+
 
     doc.setFont("helvetica", "bold")
     doc.text("Date:", pageWidth / 2, yPosition)
@@ -166,7 +211,7 @@ export default function NewFIR() {
     doc.setFont("helvetica", "bold")
     doc.text("District:", pageWidth / 2, yPosition)
     doc.setFont("helvetica", "normal")
-    doc.text("Gurgaon", pageWidth / 2 + 25, yPosition)
+    doc.text("Kottayam", pageWidth / 2 + 25, yPosition)
 
     yPosition += lineHeight + 10
 
@@ -240,7 +285,7 @@ export default function NewFIR() {
         pageWidth - margin * 2,
     )
     yPosition += 5
-    yPosition = addWrappedText(`Generated on: ${new Date().toLocaleString()}`, margin, yPosition, pageWidth - margin * 2)
+    yPosition = addWrappedText(`Drafted on: ${new Date().toLocaleString()}`, margin, yPosition, pageWidth - margin * 2)
 
     doc.save(`FIR_${extractedInfo.incidentType}_${new Date().toISOString().split("T")[0]}.pdf`)
   }
@@ -350,7 +395,7 @@ export default function NewFIR() {
                     <Mic className="h-6 w-6 text-red-600"/>
                     <span>Record Incident Details</span>
                   </CardTitle>
-                  <CardDescription>Click the microphone button and describe the incident details
+                  <CardDescription>Click the start recording button and describe the incident details
                     clearly</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
@@ -381,6 +426,10 @@ export default function NewFIR() {
                           </Button>
                       )}
                     </div>
+                    <Button onClick={handleSkip} variant="secondary" className="bg-black text-white">
+                      <SkipForward className="h-4 w-4 mr-2" />
+                      Skip
+                    </Button>
                   </div>
 
                   {audioBlob && (
@@ -517,6 +566,7 @@ export default function NewFIR() {
               </Card>
           )}
 
+
           {/*FIR Generation*/}
           {currentStep === 4 && extractedInfo && (
               <Card>
@@ -531,12 +581,12 @@ export default function NewFIR() {
                   <div className="bg-white border rounded-lg p-6 space-y-4">
                     <div className="text-center border-b pb-4">
                       <h2 className="text-xl font-bold">FIRST INFORMATION REPORT</h2>
-                      <p className="text-sm text-gray-600">Under Section 154 Cr.P.C.</p>
+                      <p className="text-sm text-gray-600">Under IPC & CrPC Sections</p>
                     </div>
 
                     <div className="grid grid-cols-2 gap-4 text-sm">
                       <div>
-                        <strong>FIR No:</strong> FIR/2024/001238
+                        <strong>FIR No:</strong> {firNumber}
                       </div>
                       <div>
                         <strong>Date:</strong> {new Date().toLocaleDateString()}
@@ -545,7 +595,7 @@ export default function NewFIR() {
                         <strong>Police Station:</strong> Cyber Crime Cell
                       </div>
                       <div>
-                        <strong>District:</strong> Gurgaon
+                        <strong>District:</strong> Kottayam
                       </div>
                     </div>
 
@@ -594,7 +644,7 @@ export default function NewFIR() {
                     <div className="text-xs text-gray-600">
                       <p>This FIR has been generated using AI-powered system and reviewed by the investigating
                         officer.</p>
-                      <p className="mt-1">Generated on: {new Date().toLocaleString()}</p>
+                      <p className="mt-1">Drafted on: {new Date().toLocaleString()}</p>
                     </div>
                   </div>
 

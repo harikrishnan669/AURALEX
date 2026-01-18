@@ -13,13 +13,11 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
 model = WhisperModel(
     "small",
     device="cpu",
     compute_type="int8"
 )
-
 @app.post("/transcribe")
 async def transcribe(file: UploadFile = File(...)):
     # Save uploaded audio temporarily

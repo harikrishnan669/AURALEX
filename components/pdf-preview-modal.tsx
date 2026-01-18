@@ -28,7 +28,6 @@ interface ExtractedInfo {
 interface PDFPreviewModalProps {
   extractedInfo: ExtractedInfo
 }
-
 export function PDFPreviewModal({ extractedInfo }: PDFPreviewModalProps) {
   const [isOpen, setIsOpen] = useState(false)
 
@@ -54,7 +53,7 @@ export function PDFPreviewModal({ extractedInfo }: PDFPreviewModalProps) {
     yPosition += 10
     doc.setFontSize(12)
     doc.setFont("helvetica", "normal")
-    doc.text("Under Section 154 Cr.P.C.", pageWidth / 2, yPosition, { align: "center" })
+    doc.text("Under IPC & CrPC Section.", pageWidth / 2, yPosition, { align: "center" })
 
     yPosition += 20
 
@@ -65,7 +64,7 @@ export function PDFPreviewModal({ extractedInfo }: PDFPreviewModalProps) {
     // Basic Information
     doc.text("FIR No:", margin, yPosition)
     doc.setFont("helvetica", "normal")
-    doc.text("FIR/2024/001238", margin + 30, yPosition)
+    doc.text(firNumber, margin + 30, yPosition)
 
     doc.setFont("helvetica", "bold")
     doc.text("Date:", pageWidth / 2, yPosition)
@@ -176,18 +175,28 @@ export function PDFPreviewModal({ extractedInfo }: PDFPreviewModalProps) {
     setIsOpen(false)
   }
 
+  const [firNumber] = useState(() => {
+    const year = new Date().getFullYear()
+    const random = Math.floor(100000 + Math.random() * 900000)
+    return `FIR/${year}/${random}`
+  })
+
+
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" className="bg-green-50 hover:bg-green-100 text-green-700 border-green-200">
-          <Eye className="h-4 w-4 mr-2" />
-          Preview & Download PDF
+        <Button
+            variant="outline"
+            className="bg-black hover:bg-gray-600 text-white px-3 py-1.5 text-sm">
+          <Eye className="h-4 w-4 mr-1" />
+          Preview & Download
         </Button>
+
       </DialogTrigger>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center space-x-2">
-            <FileText className="h-5 w-5 text-blue-600" />
+            <FileText className="h-4 w-4 text-black" />
             <span>FIR Document Preview</span>
           </DialogTitle>
           <DialogDescription>Review the FIR document before downloading as PDF</DialogDescription>
@@ -197,14 +206,14 @@ export function PDFPreviewModal({ extractedInfo }: PDFPreviewModalProps) {
           {/* Header */}
           <div className="text-center border-b pb-6">
             <h2 className="text-2xl font-bold text-gray-900">FIRST INFORMATION REPORT</h2>
-            <p className="text-sm text-gray-600 mt-2">Under Section 154 Cr.P.C.</p>
+            <p className="text-sm text-gray-600 mt-2">Under IPC & CrPC Section</p>
           </div>
 
           {/* Basic Information */}
           <div className="grid grid-cols-2 gap-6 text-sm">
             <div className="space-y-2">
               <div>
-                <strong>FIR No:</strong> FIR/2024/001238
+                <strong>FIR No:</strong> {firNumber}
               </div>
               <div>
                 <strong>Police Station:</strong> Cyber Crime Cell
@@ -215,7 +224,7 @@ export function PDFPreviewModal({ extractedInfo }: PDFPreviewModalProps) {
                 <strong>Date:</strong> {new Date().toLocaleDateString()}
               </div>
               <div>
-                <strong>District:</strong> Gurgaon
+                <strong>District:</strong>Kottayam
               </div>
             </div>
           </div>
@@ -291,7 +300,7 @@ export function PDFPreviewModal({ extractedInfo }: PDFPreviewModalProps) {
           <Button variant="outline" onClick={() => setIsOpen(false)}>
             Close Preview
           </Button>
-          <Button onClick={downloadPDF} className="bg-green-600 hover:bg-green-700">
+          <Button onClick={downloadPDF} className="bg-black hover:bg-gray-600 text-white">
             <Download className="h-4 w-4 mr-2" />
             Download PDF
           </Button>
