@@ -14,6 +14,10 @@ import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { Eye, Download, FileText } from "lucide-react"
 import jsPDF from "jspdf"
+import {serverTimestamp} from "@firebase/database";
+import {addDoc} from "@firebase/firestore";
+import {collection} from "firebase/firestore";
+import {auth, db} from "@/lib/firebase";
 
 interface ExtractedInfo {
   complainant: string
@@ -174,6 +178,41 @@ export function PDFPreviewModal({ extractedInfo }: PDFPreviewModalProps) {
     doc.save(`FIR_${extractedInfo.incidentType}_${new Date().toISOString().split("T")[0]}.pdf`)
     setIsOpen(false)
   }
+  const saveFIRToFirestore = async () => {
+    try {
+      const currentUser = auth.currentUser
+
+      if (!currentUser) {
+        alert("User not authenticated")
+        return
+      }
+
+      const year = new Date().getFullYear()
+      const random = Math.floor(100000 + Math.random() * 900000)
+      const firNumber = `FIR/${year}/${random}`
+
+      await addDoc(collection(db, "fir_documents"), {
+        firNumber,
+        complainant: extractedInfo.complainant,
+        accused: extractedInfo.accused,
+        incidentType: extractedInfo.incidentType,
+        location: extractedInfo.location,
+        dateTime: extractedInfo.dateTime,
+        description: extractedInfo.description,
+        sections: extractedInfo.sections,
+        officerUid: currentUser.uid,
+        officerName: currentUser.email,
+        status: "Completed",
+        createdAt: serverTimestamp()
+      })
+
+      alert("FIR has been successfully saved.")
+
+    } catch (error) {
+      console.error("Error saving FIR:", error)
+      alert("Error saving FIR")
+    }
+  }
 
   const [firNumber] = useState(() => {
     const year = new Date().getFullYear()
@@ -299,6 +338,12 @@ export function PDFPreviewModal({ extractedInfo }: PDFPreviewModalProps) {
         <div className="flex justify-end space-x-3 pt-4 border-t">
           <Button variant="outline" onClick={() => setIsOpen(false)}>
             Close Preview
+          </Button>
+          <Button
+              onClick={saveFIRToFirestore}
+              className="bg-green-600 hover:bg-green-700 text-white"
+          >
+            Save FIR
           </Button>
           <Button onClick={downloadPDF} className="bg-black hover:bg-gray-600 text-white">
             <Download className="h-4 w-4 mr-2" />

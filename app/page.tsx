@@ -7,11 +7,29 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Mic, FileText, Scale, Users, Clock, LogOut,Zap,Shield } from "lucide-react"
 import Link from "next/link"
+import { collection, query, where, orderBy, getDocs, limit } from "firebase/firestore"
+import { auth } from "@/lib/firebase"
+import { db } from "@/lib/firebase"
+import jsPDF from "jspdf"
+
 
 export default function Dashboard() {
   const router = useRouter()
   const [user, setUser] = useState<{ name?: string; email?: string } | null>(null)
   const [checkingAuth, setCheckingAuth] = useState(true)
+  const [firs, setFirs] = useState<any[]>([])
+  const [searchFirNumber, setSearchFirNumber] = useState("")
+  const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((firebaseUser) => {
+      if (firebaseUser) {
+        fetchMyFIRs(firebaseUser.uid)
+      }
+    })
+
+    return () => unsubscribe()
+  }, [])
 
   useEffect(() => {
     if (typeof window === "undefined") {
@@ -50,6 +68,218 @@ export default function Dashboard() {
       localStorage.removeItem("user")
       router.replace("/login")
     }
+  }
+  const fetchMyFIRs = async (uid: string) => {
+    try {
+      const q = query(
+          collection(db, "fir_documents"),
+          where("officerUid", "==", uid),
+          orderBy("createdAt", "desc"),
+          limit(4)
+      )
+      const snapshot = await getDocs(q)
+      const data = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }))
+      setFirs(data)
+
+    } catch (error) {
+      console.error("Error fetching FIRs:", error)
+    }
+  }
+  const handleSearch = async () => {
+    try {
+      const currentUser = auth.currentUser
+      if (!currentUser) return
+
+      setLoading(true)
+      if (searchFirNumber.trim() !== "") {
+
+        const q = query(
+            collection(db, "fir_documents"),
+            where("officerUid", "==", currentUser.uid),
+            where("firNumber", "==", searchFirNumber.trim())
+        )
+
+        const snapshot = await getDocs(q)
+
+        const data = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }))
+
+        setFirs(data)
+
+      } else {
+        // If no FIR number → fetch recent FIRs
+        fetchMyFIRs(currentUser.uid)
+      }
+    } catch (error) {
+      console.error("Search error:", error)
+    } finally {
+      setLoading(false)
+    }
+  }
+  const handleClear = async () => {
+    setSearchFirNumber("")
+    const currentUser = auth.currentUser
+    if (currentUser) {
+      fetchMyFIRs(currentUser.uid)
+    }
+  }
+  const fetchAllFIRs = async () => {
+    const currentUser = auth.currentUser
+    if (!currentUser) return
+
+    const q = query(
+        collection(db, "fir_documents"),
+        where("officerUid", "==", currentUser.uid),
+        orderBy("createdAt", "desc")
+    )
+
+    const snapshot = await getDocs(q)
+
+    const data = snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }))
+
+    setFirs(data)
+  }
+  const handleDownload = (fir: any) => {
+    const doc = new jsPDF()
+    const pageWidth = doc.internal.pageSize.width
+    const margin = 20
+    const lineHeight = 7
+    let yPosition = 30
+
+    const addWrappedText = (text: string, x: number, y: number, maxWidth: number) => {
+      const lines = doc.splitTextToSize(text || "-", maxWidth)
+      doc.text(lines, x, y)
+      return y + lines.length * lineHeight
+    }
+    // Header
+    doc.setFontSize(18)
+    doc.setFont("helvetica", "bold")
+    doc.text("FIRST INFORMATION REPORT", pageWidth / 2, yPosition, { align: "center" })
+
+    yPosition += 10
+    doc.setFontSize(12)
+    doc.setFont("helvetica", "normal")
+    doc.text("Under IPC & CrPC Section.", pageWidth / 2, yPosition, { align: "center" })
+
+    yPosition += 20
+
+    // FIR Details
+    doc.setFontSize(10)
+    doc.setFont("helvetica", "bold")
+
+    doc.text("FIR No:", margin, yPosition)
+    doc.setFont("helvetica", "normal")
+    doc.text(fir.firNumber || "-", margin + 30, yPosition)
+
+    doc.setFont("helvetica", "bold")
+    doc.text("Date:", pageWidth / 2, yPosition)
+    doc.setFont("helvetica", "normal")
+    doc.text(new Date().toLocaleDateString(), pageWidth / 2 + 25, yPosition)
+
+    yPosition += lineHeight + 5
+
+    doc.setFont("helvetica", "bold")
+    doc.text("Police Station:", margin, yPosition)
+    doc.setFont("helvetica", "normal")
+    doc.text("Cyber Crime Cell", margin + 45, yPosition)
+
+    doc.setFont("helvetica", "bold")
+    doc.text("District:", pageWidth / 2, yPosition)
+    doc.setFont("helvetica", "normal")
+    doc.text("Kottayam", pageWidth / 2 + 25, yPosition)
+
+    yPosition += lineHeight + 10
+
+    doc.line(margin, yPosition, pageWidth - margin, yPosition)
+    yPosition += 10
+
+    // Case Details
+    doc.setFont("helvetica", "bold")
+    doc.text("Complainant:", margin, yPosition)
+    doc.setFont("helvetica", "normal")
+    yPosition = addWrappedText(fir.complainant, margin + 40, yPosition, pageWidth - margin - 40)
+    yPosition += 5
+
+    doc.setFont("helvetica", "bold")
+    doc.text("Accused:", margin, yPosition)
+    doc.setFont("helvetica", "normal")
+    yPosition = addWrappedText(fir.accused, margin + 30, yPosition, pageWidth - margin - 30)
+    yPosition += 5
+
+    doc.setFont("helvetica", "bold")
+    doc.text("Date & Time of Occurrence:", margin, yPosition)
+    doc.setFont("helvetica", "normal")
+    yPosition = addWrappedText(fir.dateTime, margin + 70, yPosition, pageWidth - margin - 70)
+    yPosition += 5
+
+    doc.setFont("helvetica", "bold")
+    doc.text("Place of Occurrence:", margin, yPosition)
+    doc.setFont("helvetica", "normal")
+    yPosition = addWrappedText(fir.location, margin + 60, yPosition, pageWidth - margin - 60)
+    yPosition += 5
+
+    doc.setFont("helvetica", "bold")
+    doc.text("Type of Information:", margin, yPosition)
+    doc.setFont("helvetica", "normal")
+    yPosition = addWrappedText(fir.incidentType, margin + 60, yPosition, pageWidth - margin - 60)
+    yPosition += 10
+
+    doc.line(margin, yPosition, pageWidth - margin, yPosition)
+    yPosition += 10
+
+    // Incident Description
+    doc.setFont("helvetica", "bold")
+    doc.text("Details of Incident:", margin, yPosition)
+    yPosition += lineHeight
+    doc.setFont("helvetica", "normal")
+    yPosition = addWrappedText(fir.description, margin, yPosition, pageWidth - margin * 2)
+    yPosition += 10
+
+    doc.line(margin, yPosition, pageWidth - margin, yPosition)
+    yPosition += 10
+
+    // Legal Sections
+    doc.setFont("helvetica", "bold")
+    doc.text("Sections of Law:", margin, yPosition)
+    yPosition += lineHeight
+    doc.setFont("helvetica", "normal")
+
+    fir.sections?.forEach((section: string) => {
+      yPosition = addWrappedText(`• ${section}`, margin, yPosition, pageWidth - margin * 2)
+      yPosition += 3
+    })
+
+    yPosition += 10
+    doc.line(margin, yPosition, pageWidth - margin, yPosition)
+    yPosition += 10
+
+    // Footer
+    doc.setFontSize(8)
+    doc.setFont("helvetica", "italic")
+    yPosition = addWrappedText(
+        "This FIR has been generated using AI-powered system and reviewed by the investigating officer.",
+        margin,
+        yPosition,
+        pageWidth - margin * 2
+    )
+
+    yPosition += 5
+    yPosition = addWrappedText(
+        `Generated on: ${new Date().toLocaleString()}`,
+        margin,
+        yPosition,
+        pageWidth - margin * 2
+    )
+
+    doc.save(`${fir.firNumber}.pdf`)
   }
 
   if (checkingAuth) {
@@ -240,75 +470,115 @@ export default function Dashboard() {
             </Card>
           </div>
 
-          <Card>
+          <Card className="shadow-lg rounded-2xl">
             <CardHeader>
               <CardTitle>Recent FIR Activity</CardTitle>
-              <CardDescription>Latest registered cases and their status</CardDescription>
+              <CardDescription>
+                Find case details by FIR number or view your recent FIRs below
+              </CardDescription>
             </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {[
-                  {
-                    id: "FIR/2024/001234",
-                    type: "Theft",
-                    status: "Completed",
-                    officer: "SI Sharma",
-                    time: "2 hours ago",
-                  },
-                  {
-                    id: "FIR/2024/001235",
-                    type: "Assault",
-                    status: "Under Review",
-                    officer: "CI Patel",
-                    time: "4 hours ago",
-                  },
-                  {
-                    id: "FIR/2024/001236",
-                    type: "Fraud",
-                    status: "Completed",
-                    officer: "ASI Kumar",
-                    time: "6 hours ago",
-                  },
-                  {
-                    id: "FIR/2024/001237",
-                    type: "Domestic Violence",
-                    status: "Pending",
-                    officer: "SI Singh",
-                    time: "8 hours ago",
-                  },
-                ].map((fir, index) => (
-                    <div key={index} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                      <div className="flex items-center space-x-4">
-                        <div className="bg-blue-100 p-2 rounded">
-                          <FileText className="h-4 w-4 text-blue-600"/>
-                        </div>
-                        <div>
-                          <p className="font-medium text-gray-900">{fir.id}</p>
-                          <p className="text-sm text-gray-600">
-                            {fir.type} • {fir.officer}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-center space-x-3">
-                        <Badge
-                            variant={
-                              fir.status === "Completed" ? "default" : fir.status === "Under Review" ? "secondary" : "outline"
-                            }
-                            className={
-                              fir.status === "Completed"
-                                  ? "bg-green-100 text-green-800"
-                                  : fir.status === "Under Review"
-                                      ? "bg-yellow-100 text-yellow-800"
-                                      : "bg-red-100 text-red-800"
-                            }
-                        >
-                          {fir.status}
-                        </Badge>
-                        <span className="text-sm text-gray-500">{fir.time}</span>
-                      </div>
-                    </div>
-                ))}
+
+            <CardContent className="space-y-6">
+
+              {/* Filters */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+
+                <input
+                    placeholder="FIR/2026/001234"
+                    value={searchFirNumber}
+                    onChange={(e) => setSearchFirNumber(e.target.value)}
+                    className="border rounded-md px-3 py-2 text-sm w-full"
+                />
+
               </div>
+
+              {/* Buttons */}
+              <div className="flex gap-3">
+                <Button
+                    onClick={handleSearch}
+                    className="bg-black hover:bg-gray-700"
+                >
+                  Search
+                </Button>
+                <Button variant="outline" onClick={handleClear}>
+                  Clear
+                </Button>
+              </div>
+              <div className="space-y-4">
+
+                {firs.length === 0 ? (
+                    <p className="text-gray-500 text-sm">
+                      No FIRs found.
+                    </p>
+                ) : (
+                    firs.map((fir) => (
+                        <div
+                            key={fir.id}
+                            className="flex flex-col sm:flex-row sm:items-center sm:justify-between
+                   p-4 bg-gray-50 rounded-xl hover:shadow-md transition gap-4"
+                        >
+
+                          {/* Left Section */}
+                          <div className="flex items-start space-x-4">
+                            <div className="bg-blue-100 p-2 rounded-lg">
+                              <FileText className="h-4 w-4 text-blue-600"/>
+                            </div>
+
+                            <div>
+                              <p className="font-medium text-gray-900 break-words">
+                                {fir.firNumber}
+                              </p>
+                              <p className="text-sm text-gray-600 break-words">
+                                {fir.incidentType} • {fir.officerName}
+                              </p>
+                            </div>
+                          </div>
+
+                          {/* Right Section (Buttons) */}
+                          <div className="flex flex-wrap items-center gap-2 sm:justify-end">
+
+                            <Badge
+                                className={
+                                  fir.status === "Completed"
+                                      ? "bg-green-100 text-green-800"
+                                      : "bg-yellow-100 text-yellow-800"
+                                }
+                            >
+                              {fir.status}
+                            </Badge>
+
+                            <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => router.push(`/fir/${fir.id}`)}
+                                className="w-full sm:w-auto"
+                            >
+                              View
+                            </Button>
+
+                            <Button
+                                size="sm"
+                                className="bg-black hover:bg-gray-700 text-white w-full sm:w-auto"
+                                onClick={() => handleDownload(fir)}
+                            >
+                              Download
+                            </Button>
+
+                          </div>
+
+                        </div>
+                    ))
+                )}
+              </div>
+              {firs.length === 4 && (
+                  <Button
+                      variant="outline"
+                      onClick={() => fetchAllFIRs()}
+                      className="w-full bg-black text-white"
+                  >
+                    View All FIRs
+                  </Button>
+              )}
             </CardContent>
           </Card>
         </main>

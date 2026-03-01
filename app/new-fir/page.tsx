@@ -116,7 +116,7 @@ export default function NewFIR() {
 
     try {
       const res = await fetch(
-          `${process.env.PORT_FORWARD_URL}/predict`,
+          `${process.env.NEXT_PUBLIC_PORT_FORWARD_URL}/predict`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
