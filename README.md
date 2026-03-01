@@ -1,4 +1,7 @@
-# AURALEX — Legal Section Analyzer & FIR Assistant
+![Frame 3](https://github.com/user-attachments/assets/109059f6-0e7c-4399-b3f1-bd77d65a43aa)
+
+
+# AURALEX — FIR Generator & Legal Section Analyzer
 
 A compact, internal tool for intake and drafting of First Information Reports (FIRs) and for mapping incident facts to likely IPC/CrPC sections. Built with Next.js (App Router) for the frontend and a small Python utility for optional audio processing.
 The IPC/CrPC sections and Legal Section Analysis are integrated into it using another backend file:
@@ -24,13 +27,13 @@ Short, essential sections only — quick to read and act on.
 
 3. Start the app
 
-   - Use Next dev (HTTP):
+    - Use Next dev (HTTP):
 
-     pnpm dev
+      pnpm dev
 
-   - Or use included HTTPS helper (serves on the IP in the certs):
+    - Or use included HTTPS helper (serves on the IP in the certs):
 
-     node server.js
+      node server.js
 
 4. Open the URL printed by the server (e.g. https://192.168.0.9:3000).
 
@@ -68,9 +71,9 @@ This repo contains self-signed cert files and `server.js` to run an HTTPS server
 ## Project structure (essential)
 
 - `app/` — Next.js routes and pages (App Router)
-  - `new-fir/` — voice recording + FIR generation UI
-  - `legal-analyzer/` — legal section analysis UI
-  - `login/` — authentication
+    - `new-fir/` — voice recording + FIR generation UI
+    - `legal-analyzer/` — legal section analysis UI
+    - `login/` — authentication
 - `components/` — UI primitives and shared components
 - `lib/` — Firebase initialization and client helpers
 - `backend/` — optional Python audio utilities
