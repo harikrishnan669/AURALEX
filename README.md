@@ -1,9 +1,8 @@
 ![Frame 3](https://github.com/user-attachments/assets/109059f6-0e7c-4399-b3f1-bd77d65a43aa)
 
-
 ## AURALEX — FIR Generator & Legal Section Analyzer
+
 ### A compact, internal tool for intake and drafting of First Information Reports (FIRs) and for mapping incident facts to likely IPC/CrPC sections. Built with Next.js (App Router) for the frontend and a small Python utility for optional audio processing.The IPC/CrPC sections and Legal Section Analysis are integrated into it using another backend file:
----
 
 ## Quick summary
 
