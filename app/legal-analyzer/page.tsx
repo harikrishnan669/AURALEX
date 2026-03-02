@@ -141,7 +141,7 @@ export default function LegalAnalyzer() {
                 {results.length > 0 && (
                     <div className="space-y-6">
                         <div className="flex items-center justify-between">
-                            <h2 className="text-2xl font-bold text-gray-900">Analysis Results</h2>
+                            <h2 className="text-2xl font-bold text-white">Analysis Results</h2>
                             <Badge variant="outline" className="bg-blue-50 text-blue-700">
                                 {results.length} sections found
                             </Badge>

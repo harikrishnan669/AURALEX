@@ -232,7 +232,7 @@ export function PDFPreviewModal({ extractedInfo }: PDFPreviewModalProps) {
         </Button>
 
       </DialogTrigger>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="w-[95%] sm:max-w-2xl lg:max-w-4xl max-h-[90vh] overflow-y-auto p-4 sm:p-6">
         <DialogHeader>
           <DialogTitle className="flex items-center space-x-2">
             <FileText className="h-4 w-4 text-black" />
@@ -241,15 +241,15 @@ export function PDFPreviewModal({ extractedInfo }: PDFPreviewModalProps) {
           <DialogDescription>Review the FIR document before downloading as PDF</DialogDescription>
         </DialogHeader>
 
-        <div className="bg-white border rounded-lg p-8 space-y-6 shadow-sm">
+        <div className="bg-white border rounded-lg p-4 sm:p-6 lg:p-8 space-y-6 shadow-sm">
           {/* Header */}
           <div className="text-center border-b pb-6">
-            <h2 className="text-2xl font-bold text-gray-900">FIRST INFORMATION REPORT</h2>
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 text-center">FIRST INFORMATION REPORT</h2>
             <p className="text-sm text-gray-600 mt-2">Under IPC & CrPC Section</p>
           </div>
 
           {/* Basic Information */}
-          <div className="grid grid-cols-2 gap-6 text-sm">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 text-sm">
             <div className="space-y-2">
               <div>
                 <strong>FIR No:</strong> {firNumber}
@@ -268,11 +268,11 @@ export function PDFPreviewModal({ extractedInfo }: PDFPreviewModalProps) {
             </div>
           </div>
 
-          <Separator />
+          <Separator/>
 
           {/* Case Details */}
           <div className="space-y-4 text-sm">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <strong>Complainant:</strong>
                 <p className="mt-1 text-gray-700">{extractedInfo.complainant}</p>
@@ -300,7 +300,7 @@ export function PDFPreviewModal({ extractedInfo }: PDFPreviewModalProps) {
             </div>
           </div>
 
-          <Separator />
+          <Separator/>
 
           {/* Incident Details */}
           <div>
@@ -308,24 +308,24 @@ export function PDFPreviewModal({ extractedInfo }: PDFPreviewModalProps) {
             <p className="mt-2 text-sm leading-relaxed text-gray-700">{extractedInfo.description}</p>
           </div>
 
-          <Separator />
+          <Separator/>
 
           {/* Legal Sections */}
           <div>
             <strong className="text-sm">Sections of Law:</strong>
             <div className="mt-3 space-y-2">
               {extractedInfo.sections.map((section, index) => (
-                <div key={index} className="flex items-start space-x-2">
-                  <span className="text-sm text-gray-600">•</span>
-                  <Badge variant="secondary" className="text-xs">
-                    {section}
-                  </Badge>
-                </div>
+                  <div key={index} className="flex items-start space-x-2">
+                    <span className="text-sm text-gray-600">•</span>
+                    <Badge variant="secondary" className="text-xs">
+                      {section}
+                    </Badge>
+                  </div>
               ))}
             </div>
           </div>
 
-          <Separator />
+          <Separator/>
 
           {/* Footer */}
           <div className="text-xs text-gray-500 space-y-1">
@@ -335,17 +335,22 @@ export function PDFPreviewModal({ extractedInfo }: PDFPreviewModalProps) {
         </div>
 
         {/* Action Buttons */}
-        <div className="flex justify-end space-x-3 pt-4 border-t">
-          <Button variant="outline" onClick={() => setIsOpen(false)}>
+        <div className="flex flex-col sm:flex-row sm:justify-end gap-3 pt-4 border-t">
+          <Button variant="outline" className="w-full sm:w-auto" onClick={() => setIsOpen(false)}>
             Close Preview
           </Button>
+
           <Button
               onClick={saveFIRToFirestore}
-              className="bg-green-600 hover:bg-green-700 text-white"
+              className="bg-green-600 hover:bg-green-700 text-white w-full sm:w-auto"
           >
             Save FIR
           </Button>
-          <Button onClick={downloadPDF} className="bg-black hover:bg-gray-600 text-white">
+
+          <Button
+              onClick={downloadPDF}
+              className="bg-black hover:bg-gray-600 text-white w-full sm:w-auto"
+          >
             <Download className="h-4 w-4 mr-2" />
             Download PDF
           </Button>
