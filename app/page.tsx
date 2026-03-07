@@ -5,9 +5,9 @@ import { useRouter } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Mic, FileText, Scale, Users, Clock, LogOut,Zap,Shield } from "lucide-react"
+import { Mic, FileText, Scale, Users, Clock, LogOut,Zap,Shield,Trash2 } from "lucide-react"
 import Link from "next/link"
-import { collection, query, where, orderBy, getDocs, limit } from "firebase/firestore"
+import { collection, query, where, orderBy, getDocs, limit, deleteDoc, doc, getDoc } from "firebase/firestore"
 import { auth } from "@/lib/firebase"
 import { db } from "@/lib/firebase"
 import jsPDF from "jspdf"
@@ -77,11 +77,14 @@ export default function Dashboard() {
           orderBy("createdAt", "desc"),
           limit(4)
       )
+
       const snapshot = await getDocs(q)
+
       const data = snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
       }))
+
       setFirs(data)
 
     } catch (error) {
@@ -94,27 +97,29 @@ export default function Dashboard() {
       if (!currentUser) return
 
       setLoading(true)
-      if (searchFirNumber.trim() !== "") {
 
-        const q = query(
-            collection(db, "fir_documents"),
-            where("officerUid", "==", currentUser.uid),
-            where("firNumber", "==", searchFirNumber.trim())
-        )
+      const searchValue = searchFirNumber.trim()
 
-        const snapshot = await getDocs(q)
-
-        const data = snapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        }))
-
-        setFirs(data)
-
-      } else {
-        // If no FIR number → fetch recent FIRs
-        fetchMyFIRs(currentUser.uid)
+      if (searchValue === "") {
+        await fetchMyFIRs(currentUser.uid)
+        return
       }
+
+      const q = query(
+          collection(db, "fir_documents"),
+          where("officerUid", "==", currentUser.uid),
+          where("firNumber", "==", searchValue)
+      )
+
+      const snapshot = await getDocs(q)
+
+      const data = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }))
+
+      setFirs(data)
+
     } catch (error) {
       console.error("Search error:", error)
     } finally {
@@ -122,30 +127,36 @@ export default function Dashboard() {
     }
   }
   const handleClear = async () => {
-    setSearchFirNumber("")
     const currentUser = auth.currentUser
+    setSearchFirNumber("")
+
     if (currentUser) {
-      fetchMyFIRs(currentUser.uid)
+      await fetchMyFIRs(currentUser.uid)
     }
   }
   const fetchAllFIRs = async () => {
-    const currentUser = auth.currentUser
-    if (!currentUser) return
+    try {
+      const currentUser = auth.currentUser
+      if (!currentUser) return
 
-    const q = query(
-        collection(db, "fir_documents"),
-        where("officerUid", "==", currentUser.uid),
-        orderBy("createdAt", "desc")
-    )
+      const q = query(
+          collection(db, "fir_documents"),
+          where("officerUid", "==", currentUser.uid),
+          orderBy("createdAt", "desc")
+      )
 
-    const snapshot = await getDocs(q)
+      const snapshot = await getDocs(q)
 
-    const data = snapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    }))
+      const data = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }))
 
-    setFirs(data)
+      setFirs(data)
+
+    } catch (error) {
+      console.error("Error fetching all FIRs:", error)
+    }
   }
   const handleDownload = (fir: any) => {
     const doc = new jsPDF()
@@ -280,6 +291,19 @@ export default function Dashboard() {
     )
 
     doc.save(`${fir.firNumber}.pdf`)
+  }
+  const handleDelete = async (firId: string) => {
+    try {
+      const currentUser = auth.currentUser
+      if (!currentUser) return
+      const confirmDelete = window.confirm("Are you sure you want to delete this FIR?")
+      if (!confirmDelete) return
+      await deleteDoc(doc(db, "fir_documents", firId))
+      setFirs((prev) => prev.filter((fir) => fir.id !== firId))
+      alert("FIR deleted successfully")
+    } catch (error) {
+      console.error("Error deleting FIR:", error)
+    }
   }
 
   if (checkingAuth) {
@@ -482,22 +506,20 @@ export default function Dashboard() {
 
               {/* Filters */}
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-
                 <input
                     placeholder="FIR/2026/001234"
                     value={searchFirNumber}
                     onChange={(e) => setSearchFirNumber(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") handleSearch()
+                    }}
                     className="border rounded-md px-3 py-2 text-sm w-full"
                 />
-
               </div>
-
-              {/* Buttons */}
               <div className="flex gap-3">
                 <Button
                     onClick={handleSearch}
-                    className="bg-black hover:bg-gray-700"
-                >
+                    className="bg-black hover:bg-gray-700">
                   Search
                 </Button>
                 <Button variant="outline" onClick={handleClear}>
@@ -505,7 +527,6 @@ export default function Dashboard() {
                 </Button>
               </div>
               <div className="space-y-4">
-
                 {firs.length === 0 ? (
                     <p className="text-gray-500 text-sm">
                       No FIRs found.
@@ -514,11 +535,7 @@ export default function Dashboard() {
                     firs.map((fir) => (
                         <div
                             key={fir.id}
-                            className="flex flex-col sm:flex-row sm:items-center sm:justify-between
-                   p-4 bg-gray-50 rounded-xl hover:shadow-md transition gap-4"
-                        >
-
-                          {/* Left Section */}
+                            className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 bg-gray-50 rounded-xl hover:shadow-md transition gap-4">
                           <div className="flex items-start space-x-4">
                             <div className="bg-blue-100 p-2 rounded-lg">
                               <FileText className="h-4 w-4 text-blue-600"/>
@@ -533,49 +550,36 @@ export default function Dashboard() {
                               </p>
                             </div>
                           </div>
-
-                          {/* Right Section (Buttons) */}
                           <div className="flex flex-wrap items-center gap-2 sm:justify-end">
-
-                            <Badge
-                                className={
-                                  fir.status === "Completed"
-                                      ? "bg-green-100 text-green-800"
-                                      : "bg-yellow-100 text-yellow-800"
-                                }
-                            >
-                              {fir.status}
-                            </Badge>
-
                             <Button
                                 size="sm"
                                 variant="outline"
                                 onClick={() => router.push(`/fir/${fir.id}`)}
-                                className="w-full sm:w-auto"
-                            >
+                                className="w-full sm:w-auto">
                               View
                             </Button>
-
                             <Button
                                 size="sm"
                                 className="bg-black hover:bg-gray-700 text-white w-full sm:w-auto"
-                                onClick={() => handleDownload(fir)}
-                            >
+                                onClick={() => handleDownload(fir)}>
                               Download
                             </Button>
-
+                            <Button
+                                size="sm"
+                                variant="destructive"
+                                onClick={() => handleDelete(fir.id)}>
+                              <Trash2 className="h-4 w-4"/>
+                            </Button>
                           </div>
-
                         </div>
                     ))
                 )}
               </div>
-              {firs.length === 4 && (
+              {firs.length >= 4 && (
                   <Button
                       variant="outline"
                       onClick={() => fetchAllFIRs()}
-                      className="w-full bg-black text-white"
-                  >
+                      className="w-full bg-black text-white">
                     View All FIRs
                   </Button>
               )}

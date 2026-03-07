@@ -14,9 +14,7 @@ import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { Eye, Download, FileText } from "lucide-react"
 import jsPDF from "jspdf"
-import {serverTimestamp} from "@firebase/database";
-import {addDoc} from "@firebase/firestore";
-import {collection} from "firebase/firestore";
+import { addDoc, collection, serverTimestamp } from "firebase/firestore"
 import {auth, db} from "@/lib/firebase";
 
 interface ExtractedInfo {
@@ -173,26 +171,21 @@ export function PDFPreviewModal({ extractedInfo }: PDFPreviewModalProps) {
       yPosition,
       pageWidth - margin * 2,
     )
-
-    // Save the PDF
     doc.save(`FIR_${extractedInfo.incidentType}_${new Date().toISOString().split("T")[0]}.pdf`)
     setIsOpen(false)
   }
   const saveFIRToFirestore = async () => {
     try {
       const currentUser = auth.currentUser
+      const storedUser = JSON.parse(localStorage.getItem("user") || "{}")
 
       if (!currentUser) {
         alert("User not authenticated")
         return
       }
 
-      const year = new Date().getFullYear()
-      const random = Math.floor(100000 + Math.random() * 900000)
-      const firNumber = `FIR/${year}/${random}`
-
       await addDoc(collection(db, "fir_documents"), {
-        firNumber,
+        firNumber: firNumber,
         complainant: extractedInfo.complainant,
         accused: extractedInfo.accused,
         incidentType: extractedInfo.incidentType,
@@ -201,26 +194,21 @@ export function PDFPreviewModal({ extractedInfo }: PDFPreviewModalProps) {
         description: extractedInfo.description,
         sections: extractedInfo.sections,
         officerUid: currentUser.uid,
-        officerName: currentUser.email,
+        officerName: storedUser.name || currentUser.email,
         status: "Completed",
         createdAt: serverTimestamp()
       })
-
-      alert("FIR has been successfully saved.")
-
+      alert(`${firNumber} saved successfully.`)
     } catch (error) {
       console.error("Error saving FIR:", error)
       alert("Error saving FIR")
     }
   }
-
   const [firNumber] = useState(() => {
     const year = new Date().getFullYear()
     const random = Math.floor(100000 + Math.random() * 900000)
     return `FIR/${year}/${random}`
   })
-
-
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>

@@ -20,7 +20,6 @@ export default function FIRDetailsPage() {
                 router.push("/login")
                 return
             }
-
             const docRef = doc(db, "fir_documents", id as string)
             const docSnap = await getDoc(docRef)
 
@@ -29,10 +28,8 @@ export default function FIRDetailsPage() {
             } else {
                 alert("FIR not found")
             }
-
             setLoading(false)
         }
-
         fetchFIR()
     }, [id])
 
@@ -87,11 +84,6 @@ export default function FIRDetailsPage() {
                             ))}
                         </ul>
                     </div>
-
-                    <div>
-                        <strong>Status:</strong> {fir.status}
-                    </div>
-
                 </CardContent>
             </Card>
         </div>
