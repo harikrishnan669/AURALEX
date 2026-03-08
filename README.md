@@ -1,87 +1,81 @@
-![Frame 3](https://github.com/user-attachments/assets/109059f6-0e7c-4399-b3f1-bd77d65a43aa)
 
-## AURALEX — FIR Generator & Legal Section Analyzer
+![FIR Generator and Section Analyzer.png](..%2F..%2FDownloads%2FFIR%20Generator%20and%20Section%20Analyzer.png)
 
- A compact, internal tool for intake and drafting of First Information Reports (FIRs) and for mapping incident facts to likely IPC/CrPC sections. Built with Next.js (App Router) for the frontend and a small Python utility for optional audio processing.The IPC/CrPC sections and Legal Section Analysis are integrated into it using another backend file:
+# AURALEX — FIR Generator & Legal Analyzer
 
-## Quick summary
+AURALEX converts spoken incident descriptions into structured First Information Reports (FIR) and suggests relevant Indian legal sections using a Retrieval-Augmented Generation (RAG) approach.
 
-- Purpose: Rapidly capture incident narratives (voice or text), generate AI-assisted FIR drafts, and suggest relevant legal sections.
-- Stack: Next.js (App Router), React, Firebase (Auth + Firestore), optional Python audio utilities.
-- Local HTTPS: included self-signed certs + `server.js` for dev convenience.
+What's in this repo
+- Next.js frontend (app/)
+- Python audio backend (backend/audio.py) — Fast-Whisper + FastAPI
+- IPC/CrPC prediction and analysis code - [AURALEX BACKEND](https://github.com/Prabhav04/Auralex-Backend)
 
-## Quick start (development)
+Quick goals
+- Fast local dev: run the frontend and the audio backend separately
+- Transcribe audio via the backend POST /transcribe (multipart file field: `file`)
 
-1. Install dependencies
+Prerequisites
+- Node.js 18+ and npm
+- Python 3.10+ and virtualenv
+- ffmpeg (recommended) for some audio formats
 
-   pnpm install
+Frontend (quick start)
+1. From the project root:
 
-   (or `npm install` / `yarn`)
+```powershell
+npm install
+npm run dev
+```
 
-2. Create `.env.local` in the repo root with Firebase config (see Environment section below).
+2. Open https://localhost:3000 (the project runs Next.js with experimental HTTPS by default)
 
-3. Start the app
+Audio backend (quick start)
+1. Create and activate a Python virtual environment (PowerShell):
 
-    - Use Next dev (HTTP):
+```powershell
+python -m venv .venv; .\.venv\Scripts\Activate.ps1
+```
 
-      pnpm dev
+2. Install the minimal backend requirements (this project includes a small `requirements.txt`):
 
-    - Or use included HTTPS helper (serves on the IP in the certs):
+```powershell
+pip install -r requirements.txt
+```
 
-      node server.js
+3. Run the backend from the `backend` folder:
 
-4. Open the URL printed by the server (e.g. https://192.168.0.9:3000).
+```powershell
+cd backend; uvicorn audio:app --reload --host 0.0.0.0 --port 8000
+```
 
-## Environment
+4. Health-check (browser or curl):
 
-Create `.env.local` with these variables (replace with your Firebase values):
+```powershell
+curl http://127.0.0.1:8000/
+# expected: {"status":"Fast-Whisper backend running"}
+```
 
-NEXT_PUBLIC_FIREBASE_API_KEY=
+Transcription endpoint (usage example)
+- POST a multipart/form-data with the audio file using field `file` to `/transcribe`.
 
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=
+Example curl (local):
 
-NEXT_PUBLIC_FIREBASE_PROJECT_ID=
+```powershell
+curl -X POST "http://127.0.0.1:8000/transcribe" -F "file=@sample.webm"
+```
 
-NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=
+Notes & tips
+- The backend uses `faster_whisper` and will download / use an internal model. Ensure the machine has enough disk space and required runtime dependencies.
+- If you see audio decoding errors, install ffmpeg and retry.
+- For production deployments, run the frontend and backend behind proper HTTPS and add CORS/security rules accordingly.
 
-NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=
+Minimal project structure
+- app/ — Next.js app (frontend)
+- backend/audio.py — FastAPI service that transcribes audio using Faster-Whisper
+- components/, lib/, styles/ — frontend helpers
 
-NEXT_PUBLIC_FIREBASE_APP_ID=
-
-Add any secret keys for AI providers (OpenAI, etc.) as needed — do not commit `.env.local`.
-
-## Firebase (minimal)
-
-1. Create a Firebase project.
-2. Enable Authentication (Email/Password or preferred provider).
-3. Create a Firestore database and set appropriate rules.
-4. Add the web app in Firebase console and copy config to `.env.local`.
-
-The frontend initializes Firebase from `lib/firebase.ts` using `NEXT_PUBLIC_*` vars.
-
-## Local HTTPS
-
-This repo contains self-signed cert files and `server.js` to run an HTTPS server for local testing. These are for developer convenience only — remove for production.
-
-## Project structure (essential)
-
-- `app/` — Next.js routes and pages (App Router)
-    - `new-fir/` — voice recording + FIR generation UI
-    - `legal-analyzer/` — legal section analysis UI
-    - `login/` — authentication
-- `components/` — UI primitives and shared components
-- `lib/` — Firebase initialization and client helpers
-- `backend/` — optional Python audio utilities
-- `public/` — static assets
-- `server.js` — local HTTPS helper
-- `certificates/` and root cert files — local dev certs
-
-## Important files
-
-- `lib/firebase.ts` — Firebase init
-- `app/new-fir/page.tsx` — FIR recording & generation flow
-- `app/legal-analyzer/page.tsx` — legal section analyzer
-- `backend/audio.py` — optional audio processing utility
-- `server.js` — start local HTTPS server
-
-
+Project contributors
+- [R Harikrishnan](https://github.com/harikrishnan669)
+- [Prabhav Narayanan](https://github.com/Prabhav04)
+- [Dipesh V Sabu](https://github.com/tanx314)
+- [Muhammed Jaseel T A](https://github.com/Jaseel29)

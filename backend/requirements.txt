@@ -1,0 +1,7 @@
+fastapi
+uvicorn
+faster-whisper
+python-multipart
+[optional]
+# If you need audio decoding support, install ffmpeg separately for your OS
+
