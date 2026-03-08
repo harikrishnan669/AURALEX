@@ -1,4 +1,4 @@
-<img width="1536" height="1024" alt="ChatGPT Image Dec 25, 2025, 12_17_58 AM" src="https://github.com/user-attachments/assets/06b41362-af46-4a69-8461-7f72e0ab7d5c" />
+<img width="1000" height="800" alt="ChatGPT Image Dec 25, 2025, 12_17_58 AM" src="https://github.com/user-attachments/assets/06b41362-af46-4a69-8461-7f72e0ab7d5c" />
 
 # AURALEX — FIR Generator & Legal Analyzer
 
