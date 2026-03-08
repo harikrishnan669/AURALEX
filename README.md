@@ -1,5 +1,5 @@
 
-![FIR Generator and Section Analyzer.png](..%2F..%2FDownloads%2FFIR%20Generator%20and%20Section%20Analyzer.png)
+![Frame 3](..%2F..%2FDownloads%2FFIR%20Generator%20and%20Section%20Analyzer.png)
 
 # AURALEX — FIR Generator & Legal Analyzer
 
