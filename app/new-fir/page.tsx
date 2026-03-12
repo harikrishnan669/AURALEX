@@ -12,6 +12,7 @@ import {Mic, Square, FileText, User, AlertCircle, CheckCircle, ArrowLeft, Send, 
 import Link from "next/link"
 import jsPDF from "jspdf"
 import { PDFPreviewModal } from "@/components/pdf-preview-modal"
+// server-side save via /api/save-fir will be used instead of client SDK
 import { SkipForward } from "lucide-react"
 
 interface ExtractedInfo {
@@ -38,6 +39,7 @@ export default function NewFIR() {
     const random = Math.floor(100000 + Math.random() * 900000)
     return `FIR/${year}/${random}`
   })
+  const [isSaving, setIsSaving] = useState(false)
   const handleSkip = () => {
     if (isRecording) {
       stopRecording()
@@ -116,7 +118,7 @@ export default function NewFIR() {
 
     try {
       const res = await fetch(
-          `${process.env.PORT_FORWARD_URL}/predict`,
+          `${process.env.NEXT_PUBLIC_PORT_FORWARD_URL}/predict`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -151,12 +153,63 @@ export default function NewFIR() {
     }
   }
 
-  const generateFIR = () => {
-    setCurrentStep(4)
+  const generateFIR = async () => {
+    // Persist the generated FIR to Firestore
+    if (!extractedInfo) {
+      setCurrentStep(4)
+      return
+    }
+
+    setIsSaving(true)
+    try {
+      const payload = {
+        firNumber,
+        name: extractedInfo.complainant || "",
+        extractedInfo,
+        metadata: {},
+      }
+
+      const res = await fetch('/api/save-fir', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      })
+
+      if (!res.ok) {
+        const text = await res.text()
+        throw new Error(text || 'Failed to save FIR on server')
+      }
+    } catch (e) {
+      console.error("Failed to save FIR:", e)
+    } finally {
+      setIsSaving(false)
+      setCurrentStep(4)
+    }
   }
 
   const downloadPDF = () => {
     if (!extractedInfo) return
+
+    // Save FIR to server before downloading PDF (fire-and-forget handled synchronously here)
+    ;(async () => {
+      try {
+        const payload = {
+          firNumber,
+          name: extractedInfo.complainant || "",
+          extractedInfo,
+          metadata: {},
+          createdAt: new Date().toISOString(),
+        }
+
+        await fetch('/api/save-fir', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        })
+      } catch (err) {
+        console.error('Failed to save FIR before download', err)
+      }
+    })()
 
     const doc = new jsPDF()
     const pageWidth = doc.internal.pageSize.width

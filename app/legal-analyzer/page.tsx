@@ -25,55 +25,27 @@ export default function LegalAnalyzer() {
   const [results, setResults] = useState<LegalSection[]>([])
 
   const analyzeLegalSections = async () => {
-    if (!query.trim()) return
-
-    setIsAnalyzing(true)
-
-    // Simulate AI analysis for demo
-    setTimeout(() => {
-      const mockResults: LegalSection[] = [
+    if (!query.trim()) return;
+    setIsAnalyzing(true);
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_PORT_FORWARD_URL}/analyze`,
         {
-          section: "IPC Section 378",
-          title: "Theft",
-          description:
-            "Whoever, intending to take dishonestly any moveable property out of the possession of any person without that person's consent, moves that property in order to such taking, is said to commit theft.",
-          punishment:
-            "Imprisonment of either description for a term which may extend to three years, or with fine, or with both.",
-          relevanceScore: 95,
-          category: "IPC",
-        },
-        {
-          section: "IPC Section 379",
-          title: "Punishment for theft",
-          description:
-            "Whoever commits theft shall be punished with imprisonment of either description for a term which may extend to three years, or with fine, or with both.",
-          punishment: "Imprisonment up to 3 years or fine or both",
-          relevanceScore: 90,
-          category: "IPC",
-        },
-        {
-          section: "IPC Section 380",
-          title: "Theft in dwelling house, etc.",
-          description:
-            "Whoever commits theft in any building, tent or vessel, which building, tent or vessel is used as a human dwelling, or used for the custody of property, shall be punished with imprisonment of either description for a term which may extend to seven years, and shall also be liable to fine.",
-          punishment: "Imprisonment up to 7 years and fine",
-          relevanceScore: 75,
-          category: "IPC",
-        },
-        {
-          section: "CrPC Section 154",
-          title: "Information in cognizable cases",
-          description:
-            "Every information relating to the commission of a cognizable offence, if given orally to an officer in charge of a police station, shall be reduced to writing by him or under his direction, and be read over to the informant.",
-          punishment: "Procedural requirement for FIR registration",
-          relevanceScore: 60,
-          category: "CrPC",
-        },
-      ]
-
-      setResults(mockResults)
-      setIsAnalyzing(false)
-    }, 2000)
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ input: query }),
+        }
+      );
+      if (!res.ok) {
+        throw new Error("Failed to analyze legal sections");
+      }
+      const apiResults = await res.json();
+      setResults(Array.isArray(apiResults.sections) ? apiResults.sections : []);
+    } catch (err) {
+      setResults([]);
+    } finally {
+      setIsAnalyzing(false);
+    }
   }
 
   const getRelevanceColor = (score: number) => {
@@ -94,47 +66,46 @@ export default function LegalAnalyzer() {
   }
 
   return (
-      <div className="min-h-screen ">
-        <div className="fixed inset-0 -z-10 bg-black overflow-hidden">
-          <div className="absolute inset-0 opacity-[0.1]" style={{
-                backgroundImage:
-                    "repeating-linear-gradient(135deg, white 0, white 1px, transparent 1px, transparent 160px)",
-              }}/>
-          <img
-              src="/lady.png"
-              alt="Justice Scale"
-              className="absolute top-1/2 left-1/2
-      -translate-x-1/2 -translate-y-1/2
-      w-[300px] h-[300px]
-      sm:w-[420px] sm:h-[420px]
-      md:w-[520px] md:h-[520px]
-      lg:h-[700px]
-      opacity-[0.18]
-
-      pointer-events-none
-      select-none
-    "/>
-        </div>
-        <header className="bg-white shadow-sm border-b">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between py-4">
-              <div className="flex items-center space-x-3">
-                <Link href="/">
-                  <Button variant="ghost" size="sm">
-                    <ArrowLeft className="h-4 w-4 mr-2"/>
-                    Back to Dashboard
-                  </Button>
-                </Link>
-                <Separator orientation="vertical" className="h-6"/>
-                <div className="flex items-center space-x-2">
-                  <Scale className="h-6 w-6 text-black"/>
-                  <h1 className="text-xl font-semibold text-gray-900">Legal Section Analyzer</h1>
-                </div>
+    <div className="min-h-screen ">
+      <div className="fixed inset-0 -z-10 bg-black overflow-hidden">
+        <div className="absolute inset-0 opacity-[0.1]" style={{
+          backgroundImage:
+            "repeating-linear-gradient(135deg, white 0, white 1px, transparent 1px, transparent 160px)",
+        }}/>
+        <img
+          src="/lady.png"
+          alt="Justice Scale"
+          className="absolute top-1/2 left-1/2
+            -translate-x-1/2 -translate-y-1/2
+            w-[300px] h-[300px]
+            sm:w-[420px] sm:h-[420px]
+            md:w-[520px] md:h-[520px]
+            lg:h-[700px]
+            opacity-[0.18]
+            pointer-events-none
+            select-none"
+        />
+      </div>
+      <header className="bg-white shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between py-4">
+            <div className="flex items-center space-x-3">
+              <Link href="/">
+                <Button variant="ghost" size="sm">
+                  <ArrowLeft className="h-4 w-4 mr-2"/>
+                  Back to Dashboard
+                </Button>
+              </Link>
+              <Separator orientation="vertical" className="h-6"/>
+              <div className="flex items-center space-x-2">
+                <Scale className="h-6 w-6 text-black"/>
+                <h1 className="text-xl font-semibold text-gray-900">Legal Section Analyzer</h1>
               </div>
             </div>
           </div>
-        </header>
-        <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        </div>
+      </header>
+      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <Card className="mb-8">
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">

@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Mic, FileText, Scale, Users, Clock, LogOut,Zap,Shield } from "lucide-react"
 import Link from "next/link"
+import RecentFIRs from "@/components/recent-firs"
 
 export default function Dashboard() {
   const router = useRouter()
@@ -240,77 +241,7 @@ export default function Dashboard() {
             </Card>
           </div>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Recent FIR Activity</CardTitle>
-              <CardDescription>Latest registered cases and their status</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {[
-                  {
-                    id: "FIR/2024/001234",
-                    type: "Theft",
-                    status: "Completed",
-                    officer: "SI Sharma",
-                    time: "2 hours ago",
-                  },
-                  {
-                    id: "FIR/2024/001235",
-                    type: "Assault",
-                    status: "Under Review",
-                    officer: "CI Patel",
-                    time: "4 hours ago",
-                  },
-                  {
-                    id: "FIR/2024/001236",
-                    type: "Fraud",
-                    status: "Completed",
-                    officer: "ASI Kumar",
-                    time: "6 hours ago",
-                  },
-                  {
-                    id: "FIR/2024/001237",
-                    type: "Domestic Violence",
-                    status: "Pending",
-                    officer: "SI Singh",
-                    time: "8 hours ago",
-                  },
-                ].map((fir, index) => (
-                    <div key={index} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                      <div className="flex items-center space-x-4">
-                        <div className="bg-blue-100 p-2 rounded">
-                          <FileText className="h-4 w-4 text-blue-600"/>
-                        </div>
-                        <div>
-                          <p className="font-medium text-gray-900">{fir.id}</p>
-                          <p className="text-sm text-gray-600">
-                            {fir.type} • {fir.officer}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-center space-x-3">
-                        <Badge
-                            variant={
-                              fir.status === "Completed" ? "default" : fir.status === "Under Review" ? "secondary" : "outline"
-                            }
-                            className={
-                              fir.status === "Completed"
-                                  ? "bg-green-100 text-green-800"
-                                  : fir.status === "Under Review"
-                                      ? "bg-yellow-100 text-yellow-800"
-                                      : "bg-red-100 text-red-800"
-                            }
-                        >
-                          {fir.status}
-                        </Badge>
-                        <span className="text-sm text-gray-500">{fir.time}</span>
-                      </div>
-                    </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+          <RecentFIRs />
         </main>
       </div>
   )

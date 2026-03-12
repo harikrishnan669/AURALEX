@@ -30,6 +30,11 @@ interface PDFPreviewModalProps {
 }
 export function PDFPreviewModal({ extractedInfo }: PDFPreviewModalProps) {
   const [isOpen, setIsOpen] = useState(false)
+  const [firNumber] = useState(() => {
+    const year = new Date().getFullYear()
+    const random = Math.floor(100000 + Math.random() * 900000)
+    return `FIR/${year}/${random}`
+  })
 
   const downloadPDF = () => {
     const doc = new jsPDF()
@@ -175,11 +180,7 @@ export function PDFPreviewModal({ extractedInfo }: PDFPreviewModalProps) {
     setIsOpen(false)
   }
 
-  const [firNumber] = useState(() => {
-    const year = new Date().getFullYear()
-    const random = Math.floor(100000 + Math.random() * 900000)
-    return `FIR/${year}/${random}`
-  })
+
 
 
   return (

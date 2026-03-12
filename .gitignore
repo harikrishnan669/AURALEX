@@ -26,3 +26,10 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 certificates
+
+# python
+*.py[cod]
+__pycache__/
+**/__pycache__/
+.venv/
+backend/.venv/
