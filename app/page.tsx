@@ -11,6 +11,7 @@ import { collection, query, where, orderBy, getDocs, limit, deleteDoc, doc, getD
 import { auth } from "@/lib/firebase"
 import { db } from "@/lib/firebase"
 import jsPDF from "jspdf"
+import { toast } from "sonner"
 
 
 export default function Dashboard() {
@@ -293,19 +294,27 @@ export default function Dashboard() {
     doc.save(`${fir.firNumber}.pdf`)
   }
   const handleDelete = async (firId: string) => {
-    try {
-      const currentUser = auth.currentUser
-      if (!currentUser) return
-      const confirmDelete = window.confirm("Are you sure you want to delete this FIR?")
-      if (!confirmDelete) return
-      await deleteDoc(doc(db, "fir_documents", firId))
-      setFirs((prev) => prev.filter((fir) => fir.id !== firId))
-      alert("FIR deleted successfully")
-    } catch (error) {
-      console.error("Error deleting FIR:", error)
+    const currentUser = auth.currentUser
+    if (!currentUser) {
+      toast.error("User not authenticated")
+      return
     }
+    toast("Delete FIR?", {
+      description: "This action cannot be undone.",
+      action: {
+        label: "Delete",
+        onClick: async () => {
+          try {
+            await deleteDoc(doc(db, "fir_documents", firId))
+            setFirs((prev) => prev.filter((fir) => fir.id !== firId))
+            toast.success("FIR deleted successfully")
+          } catch (error) {
+            toast.error("Error deleting FIR")
+          }
+        },
+      },
+    })
   }
-
   if (checkingAuth) {
     return null
   }
