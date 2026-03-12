@@ -16,6 +16,7 @@ import { Eye, Download, FileText } from "lucide-react"
 import jsPDF from "jspdf"
 import { addDoc, collection, serverTimestamp } from "firebase/firestore"
 import {auth, db} from "@/lib/firebase";
+import { toast } from "sonner"
 
 interface ExtractedInfo {
   complainant: string
@@ -174,13 +175,14 @@ export function PDFPreviewModal({ extractedInfo }: PDFPreviewModalProps) {
     doc.save(`FIR_${extractedInfo.incidentType}_${new Date().toISOString().split("T")[0]}.pdf`)
     setIsOpen(false)
   }
+
   const saveFIRToFirestore = async () => {
     try {
       const currentUser = auth.currentUser
       const storedUser = JSON.parse(localStorage.getItem("user") || "{}")
 
       if (!currentUser) {
-        alert("User not authenticated")
+        toast.error("User not authenticated")
         return
       }
 
@@ -198,10 +200,12 @@ export function PDFPreviewModal({ extractedInfo }: PDFPreviewModalProps) {
         status: "Completed",
         createdAt: serverTimestamp()
       })
-      alert(`${firNumber} saved successfully.`)
+
+      toast.success(`${firNumber} saved successfully.`)
+
     } catch (error) {
       console.error("Error saving FIR:", error)
-      alert("Error saving FIR")
+      toast.error("Error saving FIR")
     }
   }
   const [firNumber] = useState(() => {
