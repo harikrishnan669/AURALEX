@@ -1,5 +1,4 @@
-<img width="1000" height="800" alt="ChatGPT Image Dec 25, 2025, 12_17_58 AM" src="https://github.com/user-attachments/assets/06b41362-af46-4a69-8461-7f72e0ab7d5c" />
-
+![Frame 3](..%2F..%2FDownloads%2Falt.jpg)
 # AURALEX — FIR Generator & Legal Analyzer
 
 AURALEX converts spoken incident descriptions into structured First Information Reports (FIR) and suggests relevant Indian legal sections using a Retrieval-Augmented Generation (RAG) approach.
