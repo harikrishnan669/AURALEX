@@ -1,7 +1,7 @@
 ![Frame 3](public/banner.jpg)
 # AURALEX — FIR Generator & Legal Analyzer
 
-AURALEX converts spoken incident descriptions into structured First Information Reports (FIR) and suggests relevant Indian legal sections using a Retrieval-Augmented Generation (RAG) approach.
+A compact tool that converts spoken incident descriptions into structured First Information Reports (FIR) and suggests relevant Indian legal sections using a Retrieval-Augmented Generation (RAG) approach.
 
 What's in this repo
 - Next.js frontend (app/)
@@ -25,7 +25,22 @@ npm install
 npm run dev
 ```
 
-2. Open https://localhost:3000 (the project runs Next.js with experimental HTTPS by default)
+2. Open the app in your browser:
+
+- https://localhost:3000 (the project may run with HTTPS enabled) or http://localhost:3000
+
+Firebase Authentication (frontend setup)
+1. Create a Firebase project at https://console.firebase.google.com and add a Web app.
+2. Copy the web app config values and create a `.env.local` file in the project root with the keys below (restart the dev server after adding env vars):
+
+```ini
+NEXT_PUBLIC_FIREBASE_API_KEY=your_api_key
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id
+NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
+```
 
 Audio backend (quick start)
 1. Create and activate a Python virtual environment (PowerShell):
