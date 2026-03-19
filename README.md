@@ -92,3 +92,9 @@ Project contributors
 - [Prabhav Narayanan](https://github.com/Prabhav04)
 - [Dipesh V Sabu](https://github.com/tanx314)
 - [Muhammed Jaseel T A](https://github.com/Jaseel29)
+
+User Interface
+
+| Desktop                               | Mobile                              |
+|---------------------------------------|-------------------------------------|
+| ![Desktop layout](public/desktop.png) | ![Mobile layout](public/mobile.png) |
