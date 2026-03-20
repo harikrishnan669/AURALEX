@@ -93,11 +93,14 @@ Project contributors
 - [Dipesh V Sabu](https://github.com/tanx314)
 - [Muhammed Jaseel T A](https://github.com/Jaseel29)
 
+Demo
+
+![AURALEX-ezgif com-optimize](https://github.com/user-attachments/assets/22b9de73-8ed3-46db-93b3-5ee2a396482d)
+
 User Interface
 
 | Desktop                               | Mobile                              |
 |---------------------------------------|-------------------------------------|
 | ![Desktop layout](public/desktop.png) | ![Mobile layout](public/mobile.png) |
 
-Demo
-![Demo](AURALEX.gif)
+
