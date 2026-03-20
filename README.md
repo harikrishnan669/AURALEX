@@ -98,3 +98,6 @@ User Interface
 | Desktop                               | Mobile                              |
 |---------------------------------------|-------------------------------------|
 | ![Desktop layout](public/desktop.png) | ![Mobile layout](public/mobile.png) |
+
+Demo
+![Demo](AURALEX.gif)

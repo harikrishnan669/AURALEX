@@ -30,8 +30,9 @@ interface ExtractedInfo {
 
 interface PDFPreviewModalProps {
   extractedInfo: ExtractedInfo
+  firNumber: string
 }
-export function PDFPreviewModal({ extractedInfo }: PDFPreviewModalProps) {
+export function PDFPreviewModal({ extractedInfo, firNumber }: PDFPreviewModalProps) {
   const [isOpen, setIsOpen] = useState(false)
 
   const downloadPDF = () => {
@@ -208,11 +209,6 @@ export function PDFPreviewModal({ extractedInfo }: PDFPreviewModalProps) {
       toast.error("Error saving FIR")
     }
   }
-  const [firNumber] = useState(() => {
-    const year = new Date().getFullYear()
-    const random = Math.floor(100000 + Math.random() * 900000)
-    return `FIR/${year}/${random}`
-  })
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>

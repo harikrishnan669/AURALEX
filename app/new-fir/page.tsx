@@ -184,13 +184,6 @@ export default function NewFIR() {
     doc.setFontSize(10)
     doc.setFont("helvetica", "bold")
 
-    // Generating the FIR Number
-    function generateFIRNumber() {
-      const year = new Date().getFullYear()
-      const randomNumber = Math.floor(100000 + Math.random() * 900000) // 6-digit
-      return `FIR/${year}/${randomNumber}`
-    }
-    const firNumber = generateFIRNumber()
     doc.text("FIR No:", margin, yPosition)
     doc.setFont("helvetica", "normal")
     doc.text(firNumber, margin + 30, yPosition)
@@ -652,7 +645,8 @@ export default function NewFIR() {
                     <Button onClick={() => setCurrentStep(3)} variant="outline">
                       Edit Information
                     </Button>
-                    <PDFPreviewModal extractedInfo={extractedInfo}/>
+                    <PDFPreviewModal extractedInfo={extractedInfo}
+                    firNumber={firNumber}/>
                     <Button className="bg-black hover:bg-gray-600" onClick={downloadPDF}>
                       <Send className="h-4 w-4 mr-2"/>
                       Download PDF
