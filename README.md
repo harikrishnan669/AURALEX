@@ -1,4 +1,4 @@
-![Frame 3](public/banner.jpg)
+![Frame 3](public/banner.png)
 # AURALEX — FIR Generator & Legal Analyzer
 
 A compact tool that converts spoken incident descriptions into structured First Information Reports (FIR) and suggests relevant Indian legal sections using a Retrieval-Augmented Generation (RAG) approach.
