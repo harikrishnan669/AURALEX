@@ -16,7 +16,7 @@ import { toast } from "sonner"
 
 export default function Dashboard() {
   const router = useRouter()
-  const [user, setUser] = useState<{ name?: string; email?: string } | null>(null)
+  const [user, setUser] = useState<{ uid?: string; name?: string; email?: string; role?: string } | null>(null)
   const [checkingAuth, setCheckingAuth] = useState(true)
   const [firs, setFirs] = useState<any[]>([])
   const [searchFirNumber, setSearchFirNumber] = useState("")
@@ -25,7 +25,13 @@ export default function Dashboard() {
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((firebaseUser) => {
       if (firebaseUser) {
-        fetchMyFIRs(firebaseUser.uid)
+        const storedUser = JSON.parse(localStorage.getItem("user") || "{}")
+
+        if (storedUser.role === "admin") {
+          fetchAllFIRs()
+        } else {
+          fetchMyFIRs(firebaseUser.uid)
+        }
       }
     })
 
@@ -94,23 +100,38 @@ export default function Dashboard() {
   }
   const handleSearch = async () => {
     try {
-      const currentUser = auth.currentUser
-      if (!currentUser) return
+      const storedUser = JSON.parse(localStorage.getItem("user") || "{}")
+      const uid = storedUser.uid
+
+      if (!uid) return
 
       setLoading(true)
 
       const searchValue = searchFirNumber.trim()
 
       if (searchValue === "") {
-        await fetchMyFIRs(currentUser.uid)
+        if (storedUser.role === "admin") {
+          await fetchAllFIRs()
+        } else {
+          await fetchMyFIRs(uid)
+        }
         return
       }
 
-      const q = query(
-          collection(db, "fir_documents"),
-          where("officerUid", "==", currentUser.uid),
-          where("firNumber", "==", searchValue)
-      )
+      let q
+
+      if (storedUser.role === "admin") {
+        q = query(
+            collection(db, "fir_documents"),
+            where("firNumber", "==", searchValue)
+        )
+      } else {
+        q = query(
+            collection(db, "fir_documents"),
+            where("officerUid", "==", uid),
+            where("firNumber", "==", searchValue)
+        )
+      }
 
       const snapshot = await getDocs(q)
 
@@ -128,21 +149,23 @@ export default function Dashboard() {
     }
   }
   const handleClear = async () => {
-    const currentUser = auth.currentUser
+    const storedUser = JSON.parse(localStorage.getItem("user") || "{}")
+    const uid = storedUser.uid
+
     setSearchFirNumber("")
 
-    if (currentUser) {
-      await fetchMyFIRs(currentUser.uid)
+    if (!uid) return
+
+    if (storedUser.role === "admin") {
+      await fetchAllFIRs()
+    } else {
+      await fetchMyFIRs(uid)
     }
   }
   const fetchAllFIRs = async () => {
     try {
-      const currentUser = auth.currentUser
-      if (!currentUser) return
-
       const q = query(
           collection(db, "fir_documents"),
-          where("officerUid", "==", currentUser.uid),
           orderBy("createdAt", "desc")
       )
 
@@ -587,7 +610,13 @@ export default function Dashboard() {
               {firs.length >= 4 && (
                   <Button
                       variant="outline"
-                      onClick={() => fetchAllFIRs()}
+                      onClick={() => {
+                        if (user?.role === "admin") {
+                          fetchAllFIRs()
+                        } else if (user?.uid) {
+                          fetchMyFIRs(user.uid)
+                        }
+                      }}
                       className="w-full bg-black text-white">
                     View All FIRs
                   </Button>

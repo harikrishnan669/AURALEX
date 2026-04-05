@@ -28,6 +28,8 @@ import {
     loginWithEmailOrUsername,
     onAuthChanged,
 } from "@/lib/authFirebase"
+import { doc, getDoc } from "firebase/firestore"
+import { db } from "@/lib/firebase"
 
 export default function LoginPage() {
     const router = useRouter()
@@ -98,11 +100,17 @@ export default function LoginPage() {
             const user = await loginWithEmailOrUsername(email.trim(), password)
 
             if (user) {
+
+                const userDoc = await getDoc(doc(db, "users", user.uid))
+                const userData = userDoc.data()
+
                 const profile = {
-                    uid: (user as any).uid,
-                    email: (user as any).email ?? "",
-                    name: (user as any).displayName ?? (user as any).email ?? "",
+                    uid: user.uid,
+                    email: user.email ?? "",
+                    name: user.displayName ?? user.email ?? "",
+                    role: userData?.role || "constable"
                 }
+
                 localStorage.setItem("user", JSON.stringify(profile))
                 localStorage.setItem("isAuthenticated", "true")
             }
