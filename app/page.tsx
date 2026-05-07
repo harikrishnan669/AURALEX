@@ -13,7 +13,6 @@ import { db } from "@/lib/firebase"
 import jsPDF from "jspdf"
 import { toast } from "sonner"
 
-
 export default function Dashboard() {
   const router = useRouter()
   const [user, setUser] = useState<{ uid?: string; name?: string; email?: string; role?: string } | null>(null)
@@ -34,7 +33,6 @@ export default function Dashboard() {
         }
       }
     })
-
     return () => unsubscribe()
   }, [])
 
@@ -43,7 +41,6 @@ export default function Dashboard() {
       setCheckingAuth(false)
       return
     }
-
     const auth = localStorage.getItem("isAuthenticated")
     if (auth !== "true") {
       router.replace("/login")
@@ -65,7 +62,6 @@ export default function Dashboard() {
       router.replace("/login")
       return
     }
-
     setCheckingAuth(false)
   }, [])
 
@@ -102,13 +98,9 @@ export default function Dashboard() {
     try {
       const storedUser = JSON.parse(localStorage.getItem("user") || "{}")
       const uid = storedUser.uid
-
       if (!uid) return
-
       setLoading(true)
-
       const searchValue = searchFirNumber.trim()
-
       if (searchValue === "") {
         if (storedUser.role === "admin") {
           await fetchAllFIRs()
@@ -117,9 +109,7 @@ export default function Dashboard() {
         }
         return
       }
-
       let q
-
       if (storedUser.role === "admin") {
         q = query(
             collection(db, "fir_documents"),
@@ -132,14 +122,11 @@ export default function Dashboard() {
             where("firNumber", "==", searchValue)
         )
       }
-
       const snapshot = await getDocs(q)
-
       const data = snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
       }))
-
       setFirs(data)
 
     } catch (error) {
@@ -151,9 +138,7 @@ export default function Dashboard() {
   const handleClear = async () => {
     const storedUser = JSON.parse(localStorage.getItem("user") || "{}")
     const uid = storedUser.uid
-
     setSearchFirNumber("")
-
     if (!uid) return
 
     if (storedUser.role === "admin") {
@@ -438,7 +423,6 @@ export default function Dashboard() {
                 </Link>
               </CardContent>
             </Card>
-
             <Card className="hover:shadow-lg transition-shadow">
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
@@ -525,7 +509,6 @@ export default function Dashboard() {
               </CardContent>
             </Card>
           </div>
-
           <Card className="shadow-lg rounded-2xl">
             <CardHeader>
               <CardTitle>Recent FIR Activity</CardTitle>
@@ -533,9 +516,7 @@ export default function Dashboard() {
                 Find case details by FIR number or view your recent FIRs below
               </CardDescription>
             </CardHeader>
-
             <CardContent className="space-y-6">
-
               {/* Filters */}
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
                 <input

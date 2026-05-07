@@ -67,7 +67,7 @@ export default function LoginPage() {
         if (typeof window === "undefined") return
         const unsub = onAuthChanged((u) => {
             if (u) {
-                router.replace("/login") // ensure dashboard route
+                router.replace("/login")
             } else {
                 const remember = localStorage.getItem("rememberEmail")
                 if (remember) {
@@ -154,7 +154,6 @@ export default function LoginPage() {
             setRegError("Please select your role.")
             return
         }
-
         setRegLoading(true)
         try {
             await registerUser({
@@ -187,8 +186,6 @@ export default function LoginPage() {
             setRegLoading(false)
         }
     }
-
-
     return (
         <div className="relative min-h-screen flex flex-col items-center px-7 lg:px-10 overflow-x-hidden">
             <div className="fixed inset-0 -z-10 bg-black overflow-hidden">
@@ -201,7 +198,7 @@ export default function LoginPage() {
                     }}
                 />
                 <img
-                    src="/lady.png"   //
+                    src="/lady.png"
                     alt="Justice Scale"
                     className="
       absolute top-1/2 left-[42%]
@@ -348,7 +345,6 @@ export default function LoginPage() {
                                                 />
                                             </div>
                                         </div>
-
                                         <div className="space-y-2">
                                             <Label htmlFor="password" className="text-gray-700 font-medium">
                                                 Password
@@ -375,7 +371,6 @@ export default function LoginPage() {
                                                 </button>
                                             </div>
                                         </div>
-
                                         <div className="flex items-center space-x-2">
                                             <input
                                                 id="remember"
@@ -389,7 +384,6 @@ export default function LoginPage() {
                                                 Remember me on this device
                                             </Label>
                                         </div>
-
                                         <div className="space-y-3">
                                             <Button
                                                 type="submit"
@@ -406,7 +400,6 @@ export default function LoginPage() {
                                                     "Sign In"
                                                 )}
                                             </Button>
-
                                             <Button
                                                 type="button"
                                                 variant="ghost"
@@ -447,7 +440,6 @@ export default function LoginPage() {
                                     <CardDescription className="text-center text-sm">Register to use the
                                         dashboard</CardDescription>
                                 </CardHeader>
-
                                 <CardContent className="space-y-4">
                                     {regError && (
                                         <Alert className="border-red-200 bg-red-50">
@@ -499,7 +491,6 @@ export default function LoginPage() {
                                                 ))}
                                             </select>
                                         </div>
-
                                         <div className="space-y-2">
                                             <Label htmlFor="regEmail" className="text-gray-700 font-medium">
                                                 Email Address
@@ -511,7 +502,6 @@ export default function LoginPage() {
                                                        className="pl-10 h-11" disabled={regLoading}/>
                                             </div>
                                         </div>
-
                                         <div className="space-y-2">
                                             <Label htmlFor="regPassword" className="text-gray-700 font-medium">
                                                 Password
@@ -524,7 +514,6 @@ export default function LoginPage() {
                                                        className="pl-10 pr-10 h-11" disabled={regLoading}/>
                                             </div>
                                         </div>
-
                                         <div className="space-y-2">
                                             <Label htmlFor="regConfirm" className="text-gray-700 font-medium">
                                                 Confirm Password
@@ -533,7 +522,6 @@ export default function LoginPage() {
                                                    value={regConfirm} onChange={(e) => setRegConfirm(e.target.value)}
                                                    disabled={regLoading}/>
                                         </div>
-
                                         <div className="grid grid-cols-2 gap-3">
                                             <Button
                                                 type="submit"
@@ -552,9 +540,7 @@ export default function LoginPage() {
                                                 Back to Sign In
                                             </Button>
                                         </div>
-
                                     </form>
-
                                     <div className="text-center text-xs text-gray-500 pt-2">
                                         <span>Already registered? Click Back to Sign In to login.</span>
                                     </div>

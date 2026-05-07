@@ -42,13 +42,11 @@ export default function NewFIR() {
     if (isRecording) {
       stopRecording()
     }
-    // Skip voice recording go to Transcription step
     setTranscription("")
     setCurrentStep(2)
   }
 
 
-// The voice will start recording
   const startRecording = async () => {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
 
@@ -63,8 +61,6 @@ export default function NewFIR() {
     mediaRecorderRef.current = mediaRecorder
     setIsRecording(true)
   }
-
-// The voice will stop recording
   const stopRecording = async () => {
     if (!mediaRecorderRef.current) return
 
@@ -81,7 +77,6 @@ export default function NewFIR() {
         const formData = new FormData()
         formData.append("file", blob, "incident.webm")
 
-        // Changed to Https port and transcription of the audio to text
           const res = await fetch(
               `${process.env.NEXT_PUBLIC_BACKEND_URL}/transcribe`,
               {
@@ -150,7 +145,6 @@ export default function NewFIR() {
       setIsProcessing(false)
     }
   }
-
   const generateFIR = () => {
     setCurrentStep(4)
   }
@@ -286,8 +280,6 @@ export default function NewFIR() {
   return (
       <div className="min-h-screen overflow-x-hidden">
         <div className="fixed inset-0 -z-10 bg-black overflow-hidden">
-
-          {/* Line pattern */}
           <div
               className="absolute inset-0 opacity-[0.1]"
               style={{
@@ -295,8 +287,6 @@ export default function NewFIR() {
                     "repeating-linear-gradient(135deg, white 0, white 1px, transparent 1px, transparent 160px)",
               }}
           />
-
-          {/* Center background image */}
           <img
               src="/lady.png"   //
               alt="Justice Scale"
@@ -379,7 +369,6 @@ export default function NewFIR() {
             </div>
           </div>
 
-
           {/*Voice Recording Section*/}
           {currentStep === 1 && (
               <Card>
@@ -405,7 +394,6 @@ export default function NewFIR() {
                         {isRecording ? "Speak clearly and describe all incident details" : "Click start to begin recording"}
                       </p>
                     </div>
-
                     <div className="flex space-x-4">
                       {!isRecording ? (
                           <Button onClick={startRecording} className="bg-red-600 hover:bg-red-700">
@@ -419,12 +407,11 @@ export default function NewFIR() {
                           </Button>
                       )}
                     </div>
-                    <Button onClick={handleSkip} variant="secondary" className="bg-black text-white">
+                    <Button onClick={handleSkip} variant="secondary" className="bg-black text-white hover:bg-gray-600">
                       <SkipForward className="h-4 w-4 mr-2" />
                       Skip
                     </Button>
                   </div>
-
                   {audioBlob && (
                       <div className="bg-green-50 p-4 rounded-lg">
                         <div className="flex items-center space-x-2">
@@ -456,7 +443,6 @@ export default function NewFIR() {
                               value={transcription} onChange={(e) => setTranscription(e.target.value)}
                               className="min-h-[200px] mt-2"/>
                   </div>
-
                   <div className="bg-yellow-50 p-4 rounded-lg">
                     <div className="flex items-start space-x-2">
                       <AlertCircle className="h-5 w-5 text-yellow-600 mt-0.5"/>
@@ -469,7 +455,14 @@ export default function NewFIR() {
                   </div>
 
                   <div className="flex space-x-4">
-                    <Button onClick={() => setCurrentStep(1)} variant="outline">
+                    <Button
+                        onClick={() => {
+                          setCurrentStep(1)
+                          setAudioBlob(null)
+                          setTranscription("")
+                        }}
+                        variant="outline"
+                    >
                       Re-record
                     </Button>
                     <Button onClick={processTranscription} disabled={!transcription.trim() || isProcessing}
@@ -480,7 +473,6 @@ export default function NewFIR() {
                 </CardContent>
               </Card>
           )}
-
           {/*Information Extraction Section*/}
           {currentStep === 3 && extractedInfo && (
               <Card>
@@ -558,7 +550,6 @@ export default function NewFIR() {
                 </CardContent>
               </Card>
           )}
-
 
           {/*FIR Generation*/}
           {currentStep === 4 && extractedInfo && (
