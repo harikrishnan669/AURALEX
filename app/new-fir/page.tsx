@@ -313,7 +313,7 @@ export default function NewFIR() {
                 <Link href="/">
                   <Button variant="ghost" size="sm">
                     <ArrowLeft className="h-4 w-4 mr-1"/>
-                    Back
+                    Back to Dashboard
                   </Button>
                 </Link>
                 <div className="flex items-center gap-3 w-full">

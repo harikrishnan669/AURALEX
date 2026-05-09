@@ -440,75 +440,6 @@ export default function Dashboard() {
               </CardContent>
             </Card>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-            {/* Feature 1 */}
-            <Card
-                className="group border border-blue-100 hover:border-blue-400 transition-all duration-300 hover:shadow-xl">
-              <CardContent className="p-6 space-y-4">
-                <div
-                    className="flex items-center justify-center w-12 h-12 rounded-lg bg-black">
-                  <Zap className="h-6 w-6 text-white"/>
-                </div>
-                <h3 className="text-lg font-semibold text-gray-900">
-                  AI FIR Generation
-                </h3>
-                <p className="text-sm text-gray-600 leading-relaxed">
-                  Automatically generate well-structured FIR drafts using AI based on incident narratives.
-                </p>
-              </CardContent>
-            </Card>
-
-            {/* Feature 2 */}
-            <Card
-                className="group border border-indigo-100 hover:border-indigo-400 transition-all duration-300 hover:shadow-xl">
-              <CardContent className="p-6 space-y-4">
-                <div
-                    className="flex items-center justify-center w-12 h-12 rounded-lg bg-black">
-                  <Scale className="h-6 w-6 text-white"/>
-                </div>
-                <h3 className="text-lg font-semibold text-gray-900">
-                  Legal Section Analysis
-                </h3>
-                <p className="text-sm text-gray-600 leading-relaxed">
-                  Instantly identify relevant IPC and CrPC sections using intelligent legal analysis.
-                </p>
-              </CardContent>
-            </Card>
-
-            {/* Feature 3 */}
-            <Card
-                className="group border border-purple-100 hover:border-purple-400 transition-all duration-300 hover:shadow-xl">
-              <CardContent className="p-6 space-y-4">
-                <div
-                    className="flex items-center justify-center w-12 h-12 rounded-lg bg-black">
-                  <Mic className="h-6 w-6 text-white"/>
-                </div>
-                <h3 className="text-lg font-semibold text-gray-900">
-                  Voice to Text Input
-                </h3>
-                <p className="text-sm text-gray-600 leading-relaxed">
-                  Record officer statements via voice and convert them into accurate, searchable text.
-                </p>
-              </CardContent>
-            </Card>
-
-            {/* Feature 4 */}
-            <Card
-                className="group border border-green-100 hover:border-green-400 transition-all duration-300 hover:shadow-xl">
-              <CardContent className="p-6 space-y-4">
-                <div
-                    className="flex items-center justify-center w-12 h-12 rounded-lg bg-black">
-                  <Shield className="h-6 w-6 text-white"/>
-                </div>
-                <h3 className="text-lg font-semibold text-gray-900">
-                  Secure Officer Access
-                </h3>
-                <p className="text-sm text-gray-600 leading-relaxed">
-                  Role-based authentication ensures privacy, accountability, and authorized access only.
-                </p>
-              </CardContent>
-            </Card>
-          </div>
           <Card className="shadow-lg rounded-2xl">
             <CardHeader>
               <CardTitle>Recent FIR Activity</CardTitle>
@@ -604,6 +535,75 @@ export default function Dashboard() {
               )}
             </CardContent>
           </Card>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-10 mb-10">
+            {/* Feature 1 */}
+            <Card
+                className="group border border-blue-100 hover:border-blue-400 transition-all duration-300 hover:shadow-xl">
+              <CardContent className="p-6 space-y-4">
+                <div
+                    className="flex items-center justify-center w-12 h-12 rounded-lg bg-black">
+                  <Zap className="h-6 w-6 text-white"/>
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900">
+                  AI FIR Generation
+                </h3>
+                <p className="text-sm text-gray-600 leading-relaxed">
+                  Automatically generate well-structured FIR drafts using AI based on incident narratives.
+                </p>
+              </CardContent>
+            </Card>
+
+            {/* Feature 2 */}
+            <Card
+                className="group border border-indigo-100 hover:border-indigo-400 transition-all duration-300 hover:shadow-xl">
+              <CardContent className="p-6 space-y-4">
+                <div
+                    className="flex items-center justify-center w-12 h-12 rounded-lg bg-black">
+                  <Scale className="h-6 w-6 text-white"/>
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900">
+                  Legal Section Analysis
+                </h3>
+                <p className="text-sm text-gray-600 leading-relaxed">
+                  Instantly identify relevant IPC and CrPC sections using intelligent legal analysis.
+                </p>
+              </CardContent>
+            </Card>
+
+            {/* Feature 3 */}
+            <Card
+                className="group border border-purple-100 hover:border-purple-400 transition-all duration-300 hover:shadow-xl">
+              <CardContent className="p-6 space-y-4">
+                <div
+                    className="flex items-center justify-center w-12 h-12 rounded-lg bg-black">
+                  <Mic className="h-6 w-6 text-white"/>
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900">
+                  Voice to Text Input
+                </h3>
+                <p className="text-sm text-gray-600 leading-relaxed">
+                  Record officer statements via voice and convert them into accurate, searchable text.
+                </p>
+              </CardContent>
+            </Card>
+
+            {/* Feature 4 */}
+            <Card
+                className="group border border-green-100 hover:border-green-400 transition-all duration-300 hover:shadow-xl">
+              <CardContent className="p-6 space-y-4">
+                <div
+                    className="flex items-center justify-center w-12 h-12 rounded-lg bg-black">
+                  <Shield className="h-6 w-6 text-white"/>
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900">
+                  Secure Officer Access
+                </h3>
+                <p className="text-sm text-gray-600 leading-relaxed">
+                  Role-based authentication ensures privacy, accountability, and authorized access only.
+                </p>
+              </CardContent>
+            </Card>
+          </div>
         </main>
       </div>
   )

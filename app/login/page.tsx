@@ -330,14 +330,14 @@ export default function LoginPage() {
                                     <form onSubmit={handleLogin} className="space-y-4">
                                         <div className="space-y-2">
                                             <Label htmlFor="email" className="text-gray-700 font-medium">
-                                                Username or Email
+                                                Email id
                                             </Label>
                                             <div className="relative">
                                                 <Mail className="absolute left-3 top-3 h-5 w-5 text-gray-400"/>
                                                 <Input
                                                     id="email"
                                                     type="text"
-                                                    placeholder="username or officer@police.gov.in"
+                                                    placeholder="Enter email id"
                                                     value={email}
                                                     onChange={(e) => setEmail(e.target.value)}
                                                     className="pl-10 h-11 border-gray-200 focus:border-black-500 focus:ring-gray-500"
@@ -366,8 +366,8 @@ export default function LoginPage() {
                                                     className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
                                                     disabled={isLoading}
                                                 >
-                                                    {showPassword ? <EyeOff className="h-5 w-5"/> :
-                                                        <Eye className="h-5 w-5"/>}
+                                                    {showPassword ? <Eye className="h-5 w-5"/> :
+                                                        <EyeOff className="h-5 w-5"/>}
                                                 </button>
                                             </div>
                                         </div>
@@ -508,19 +508,40 @@ export default function LoginPage() {
                                             </Label>
                                             <div className="relative">
                                                 <Lock className="absolute left-3 top-3 h-5 w-5 text-gray-400"/>
-                                                <Input id="regPassword" type="password"
+                                                <Input id="regPassword" type={showPassword ? "text" : "password"}
                                                        placeholder="At least 6 characters" value={regPassword}
                                                        onChange={(e) => setRegPassword(e.target.value)}
                                                        className="pl-10 pr-10 h-11" disabled={regLoading}/>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setShowPassword(!showPassword)}
+                                                    className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
+                                                    disabled={isLoading}
+                                                >
+                                                    {showPassword ? <Eye className="h-5 w-5"/> :
+                                                        <EyeOff className="h-5 w-5"/>}
+                                                </button>
                                             </div>
                                         </div>
                                         <div className="space-y-2">
                                             <Label htmlFor="regConfirm" className="text-gray-700 font-medium">
                                                 Confirm Password
                                             </Label>
-                                            <Input id="regConfirm" type="password" placeholder="Repeat password"
+                                            <div className="relative">
+                                            <Input id="regConfirm" type={showPassword ? "text" : "password"}
+                                                   placeholder="Repeat password"
                                                    value={regConfirm} onChange={(e) => setRegConfirm(e.target.value)}
                                                    disabled={regLoading}/>
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowPassword(!showPassword)}
+                                                className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
+                                                disabled={isLoading}
+                                            >
+                                                {showPassword ? <Eye className="h-5 w-5"/> :
+                                                    <EyeOff className="h-5 w-5"/>}
+                                            </button>
+                                            </div>
                                         </div>
                                         <div className="grid grid-cols-2 gap-3">
                                             <Button
